@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>文本格式转换工具</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { padding: 20px; }
+        .preview { font-family: monospace; }
+        .form-check { margin-bottom: 10px; }
+        textarea { resize: vertical; }
+        #resultContainer { display: none; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2 class="mb-4">文本格式转换工具</h2>
+        
+        <div class="row mb-4">
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="useComma" checked>
+                    <label class="form-check-label" for="useComma">
+                        使用逗号 (,)
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="useSemicolon">
+                    <label class="form-check-label" for="useSemicolon">
+                        使用分号 (;)
+                    </label>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" id="useQuotes" onchange="toggleQuoteOptions()">
+                    <label class="form-check-label" for="useQuotes">
+                        添加引号
+                    </label>
+                </div>
+                <div class="form-check ms-4 quote-type">
+                    <input class="form-check-input" type="radio" name="quoteType" id="singleQuote" value="single" checked disabled>
+                    <label class="form-check-label" for="singleQuote">
+                        单引号 (')
+                    </label>
+                </div>
+                <div class="form-check ms-4 quote-type">
+                    <input class="form-check-input" type="radio" name="quoteType" id="doubleQuote" value="double" disabled>
+                    <label class="form-check-label" for="doubleQuote">
+                        双引号 (")
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div class="mb-3">
+            <p class="mb-2">预览格式：<code id="formatPreview" class="preview"></code></p>
+        </div>
+
+        <div class="mb-3">
+            <label for="inputText" class="form-label">输入文本（每行一个项目）：</label>
+            <textarea class="form-control" id="inputText" rows="6" placeholder="请输入要转换的文本，每行一个项目"></textarea>
+        </div>
+
+        <div class="mb-3">
+            <button class="btn btn-primary me-2" onclick="convertText()">转换</button>
+            <button class="btn btn-secondary" onclick="document.getElementById('inputText').value=''; document.getElementById('resultContainer').style.display='none';">清空</button>
+        </div>
+
+        <div id="resultContainer" class="mb-3">
+            <label for="result" class="form-label">转换结果：</label>
+            <div class="input-group">
+                <textarea class="form-control" id="result" rows="3" readonly></textarea>
+                <button class="btn btn-outline-secondary" onclick="copyResult()">复制</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function updateFormatPreview() {
+            const useComma = document.getElementById('useComma').checked;
+            const useSemicolon = document.getElementById('useSemicolon').checked;
+            const useQuotes = document.getElementById('useQuotes').checked;
+            const quoteType = document.querySelector('input[name="quoteType"]:checked').value;
+            const quote = quoteType === 'single' ? "'" : '"';
+            
+            let delimiters = [];
+            if (useComma) delimiters.push(',');
+            if (useSemicolon) delimiters.push(';');
+            
+            if (delimiters.length === 0) {
+                delimiters.push(',');
+                document.getElementById('useComma').checked = true;
+            }
+            
+            const delimiter = delimiters.join('');
+            let example = ['示例1', '示例2', '示例3'].map(item => {
+                return useQuotes ? `${quote}${item}${quote}` : item;
+            }).join(delimiter);
+            
+            document.getElementById('formatPreview').textContent = example;
+        }
+
+        function toggleQuoteOptions() {
+            const useQuotes = document.getElementById('useQuotes').checked;
+            const quoteInputs = document.querySelectorAll('input[name="quoteType"]');
+            const quoteLabels = document.querySelectorAll('.quote-type label');
+            
+            quoteInputs.forEach(input => {
+                input.disabled = !useQuotes;
+            });
+            
+            quoteLabels.forEach(label => {
+                if (useQuotes) {
+                    label.style.color = '';
+                } else {
+                    label.style.color = '#999';
+                }
+            });
+            
+            updateFormatPreview();
+        }
+
+        // 为所有复选框和单选框添加事件监听器
+        document.getElementById('useComma').addEventListener('change', updateFormatPreview);
+        document.getElementById('useSemicolon').addEventListener('change', updateFormatPreview);
+        document.getElementById('useQuotes').addEventListener('change', updateFormatPreview);
+        document.getElementById('singleQuote').addEventListener('change', updateFormatPreview);
+        document.getElementById('doubleQuote').addEventListener('change', updateFormatPreview);
+
+        // 初始化引号选项状态
+        toggleQuoteOptions();
+
+        function convertText() {
+            const inputText = document.getElementById('inputText').value;
+            const useComma = document.getElementById('useComma').checked;
+            const useSemicolon = document.getElementById('useSemicolon').checked;
+            const useQuotes = document.getElementById('useQuotes').checked;
+            const quoteType = document.querySelector('input[name="quoteType"]:checked').value;
+            const quote = quoteType === 'single' ? "'" : '"';
+
+            if (!inputText.trim()) {
+                alert('请输入要转换的文本！');
+                return;
+            }
+
+            let delimiters = [];
+            if (useComma) delimiters.push(',');
+            if (useSemicolon) delimiters.push(';');
+            
+            if (delimiters.length === 0) {
+                delimiters.push(',');
+            }
+            
+            const delimiter = delimiters.join('');
+            const lines = inputText.trim().split('\n')
+                .map(line => line.trim())
+                .filter(line => line);
+
+            let result;
+            if (useQuotes) {
+                result = lines.map(line => `${quote}${line}${quote}`).join(delimiter);
+            } else {
+                result = lines.join(delimiter);
+            }
+
+            document.getElementById('result').textContent = result;
+            document.getElementById('resultContainer').style.display = 'block';
+        }
+
+        function copyResult() {
+            const result = document.getElementById('result');
+            result.select();
+            document.execCommand('copy');
+            alert('已复制到剪贴板！');
+        }
+    </script>
+</body>
+</html>
