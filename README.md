@@ -9,12 +9,18 @@
 - 分隔符可自由组合
 - 实时预览转换效果
 - 一键复制结果
+- 保存最近10条转换历史
+- 美观的用户界面
+
+## 在线演示
+
+访问 [https://text-converter-wiseaustin.vercel.app](https://text-converter-wiseaustin.vercel.app)
 
 ## 本地开发
 
 1. 克隆项目
 ```bash
-git clone [your-repo-url]
+git clone https://github.com/WiseAustin/text-converter.git
 cd text-converter
 ```
 
@@ -33,6 +39,14 @@ python main.py
 
 ## 技术栈
 
-- FastAPI
-- Bootstrap 5
-- HTML/JavaScript
+- FastAPI - 后端框架
+- Bootstrap 5 - UI框架
+- HTML/JavaScript - 前端开发
+
+## 更新日志
+
+### 2024-12-27
+- 优化用户界面设计
+- 添加历史记录功能
+- 改进按钮样式和交互效果
+- 添加实时预览功能
